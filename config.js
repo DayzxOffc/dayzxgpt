@@ -1,17 +1,3 @@
-// ========================================================
-// 1. Cek Login (WAJIB LOGIN SEBELUM MASUK INDEX.HTML)
-// ========================================================
-(function () {
-    const loggedIn = localStorage.getItem("logged_in");
-
-    // Jika belum login, jangan izinkan masuk index.html
-    // dan halaman lain selain login.html
-    const currentPage = window.location.pathname.split("/").pop();
-
-    if (!loggedIn && currentPage !== "login.html") {
-        window.location.href = "login.html";
-    }
-})();
 
 
 // ========================================================
