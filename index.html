@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Deploy & Clone Website - DayzZploit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #00c17b;
+      --secondary-color: #00ffff;
+      --dark-bg: #121212;
+      --card-bg: #1f1f1f;
+      --input-bg: #2a2a2a;
+      --text-primary: #e0e0e0;
+      --text-secondary: #bbbbbb;
+      --hover-color: #00a46c;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-primary);
+      background-image: linear-gradient(135deg, rgba(0, 193, 123, 0.1) 0%, rgba(0, 255, 255, 0.1) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      width: 100%;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: 480px;
+      width: 100%;
+      background-color: var(--card-bg);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      margin-bottom: 20px;
+    }
+
+    .tab-container {
+      display: flex;
+      margin-bottom: 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: var(--input-bg);
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 12px;
+      background-color: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .tab-button.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      color: var(--secondary-color);
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    input[type="url"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 14px;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--input-bg);
+      color: var(--text-primary);
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="url"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 14px;
+      background-color: var(--input-bg);
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px dashed var(--primary-color);
+    }
+
+    .file-input-label:hover {
+      background-color: rgba(0, 193, 123, 0.1);
+    }
+
+    .file-name {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: var(--hover-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 193, 123, 0.3);
+    }
+
+    button:disabled {
+      background-color: #444;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success {
+      background-color: rgba(0, 193, 123, 0.2);
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+    }
+
+    .error {
+      background-color: rgba(255, 59, 48, 0.2);
+      color: #ff3b30;
+      border: 1px solid #ff3b30;
+    }
+
+    .info {
+      background-color: rgba(0, 122, 255, 0.2);
+      color: #007aff;
+      border: 1px solid #007aff;
+    }
+
+    .footer {
+      width: 100%;
+      max-width: 480px;
+      font-size: 13px;
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .footer h4 {
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px 0;
+    }
+
+    .footer li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer a {
+      color: var(--secondary-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer a:hover {
+      color: var(--primary-color);
+      text-decoration: underline;
+    }
+
+    .created-by {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #666;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      max-width: 300px;
+    }
+
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .notification.success {
+      background-color: var(--primary-color);
+    }
+
+    .notification.error {
+      background-color: #ff3b30;
+    }
+
+    .progress-container {
+      width: 100%;
+      background-color: var(--input-bg);
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background-color: var(--primary-color);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .asset-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 10px;
+      background-color: var(--input-bg);
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+    }
+
+    .asset-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+    }
+
+    .asset-item:last-child {
+      border-bottom: none;
+    }
+
+    .asset-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .asset-status i {
+      font-size: 10px;
+    }
+
+    .success-icon {
+      color: var(--primary-color);
+    }
+
+    .error-icon {
+      color: #ff3b30;
+    }
+
+    .loading-icon {
+      color: var(--secondary-color);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .action-btn {
+      padding: 8px 15px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 0;
+    }
+
+    .copy-btn {
+      background-color: #4a69bd;
+      color: white;
+    }
+
+    .copy-btn:hover {
+      background-color: #3c5aa6;
+    }
+
+    .download-btn {
+      background-color: #6c5ce7;
+      color: white;
+    }
+
+    .download-btn:hover {
+      background-color: #5f3dc4;
+    }
+
+    .zip-btn {
+      background-color: #fd79a8;
+      color: white;
+    }
+
+    .zip-btn:hover {
+      background-color: #e84393;
+    }
+
+    .url-display {
+      word-break: break-all;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .container {
+        padding: 20px;
+      }
+      
+      .result-actions {
+        flex-direction: column;
+      }
+      
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>DayzZploit Web Tools</h1>
+    <p>Deploy & Clone Website dengan Mudah</p>
+  </div>
+
+  <div class="container">
+    <div class="tab-container">
+      <button class="tab-button active" id="deployTab">
+        <i class="fas fa-upload"></i> Deploy
+      </button>
+      <button class="tab-button" id="cloneTab">
+        <i class="fas fa-copy"></i> Clone
+      </button>
+    </div>
+
+    <!-- Deploy Tab -->
+    <div class="tab-content active" id="deployContent">
+      <h2><i class="fas fa-rocket"></i> Deploy Website</h2>
+      <form id="deployForm">
+        <label>Nama Website</label>
+        <input type="text" id="siteName" placeholder="contoh: yanzishere" required>
+        
+        <label>Upload File HTML</label>
+        <div class="file-input-wrapper">
+          <label for="htmlFile" class="file-input-label">
+            <i class="fas fa-cloud-upload-alt"></i> Klik untuk memilih file HTML
+            <div class="file-name" id="fileName">Tidak ada file yang dipilih</div>
+          </label>
+          <input type="file" id="htmlFile" accept=".html" required>
+        </div>
+        
+        <button type="submit" id="deployBtn">
+          <i class="fas fa-rocket"></i> Buat Sekarang
+          <div class="loading-spinner" id="deployLoading"></div>
+        </button>
+      </form>
+      <div id="deployResult"></div>
+    </div>
+
+    <!-- Clone Tab -->
+    <div class="tab-content" id="cloneContent">
+      <h2><i class="fas fa-copy"></i> Clone Website</h2>
+      <form id="cloneForm">
+        <label>URL Website yang Akan Diclone</label>
+        <input type="url" id="siteUrl" placeholder="https://contoh.com" required>
+        
+        <button type="submit" id="cloneBtn">
+          <i class="fas fa-copy"></i> Clone Sekarang
+          <div class="loading-spinner" id="cloneLoading"></div>
+        </button>
+      </form>
+      
+      <div class="progress-container" id="cloneProgress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text" id="progressText" style="display: none;">0%</div>
+      
+      <div class="asset-list" id="assetList"></div>
+      
+      <div id="cloneResult"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <h4><i class="fas fa-clipboard-list"></i> Syarat & Ketentuan</h4>
+    <ul>
+      <li><i class="fas fa-check-circle"></i> File wajib bernama <strong>index.html</strong>.</li>
+      <li><i class="fas fa-check-circle"></i> Tidak boleh mengandung konten ilegal atau phishing.</li>
+      <li><i class="fas fa-check-circle"></i> Website akan bersifat publik & gratis.</li>
+      <li><i class="fas fa-check-circle"></i> Fitur clone hanya untuk website statis.</li>
+    </ul>
+    
+    <h4><i class="fas fa-address-book"></i> Kontak Admin</h4>
+    <ul>
+      <li><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/628388367776" target="_blank">Owner Web</a></li>
+      <li><i class="fab fa-telegram"></i> Telegram: <a href="https://t.me/DayzxTech" target="_blank">Owner Web</a></li>
+      <li><i class="fab fa-telegram"></i> Channel: <a href="https://t.me/YanzIsereX1" target="_blank">Channel Kami</a></li>
+    </ul>
+    
+    <div class="created-by">🌐 Create by <strong>Dayzx Official</strong></div>
+  </div>
+
+  <div class="notification" id="notification"></div>
+
+  <script>
+    // Tab functionality
+    const deployTab = document.getElementById('deployTab');
+    const cloneTab = document.getElementById('cloneTab');
+    const deployContent = document.getElementById('deployContent');
+    const cloneContent = document.getElementById('cloneContent');
+
+    deployTab.addEventListener('click', () => {
+      deployTab.classList.add('active');
+      cloneTab.classList.remove('active');
+      deployContent.classList.add('active');
+      cloneContent.classList.remove('active');
+    });
+
+    cloneTab.addEventListener('click', () => {
+      cloneTab.classList.add('active');
+      deployTab.classList.remove('active');
+      cloneContent.classList.add('active');
+      deployContent.classList.remove('active');
+    });
+
+    // File input display
+    const htmlFileInput = document.getElementById('htmlFile');
+    const fileName = document.getElementById('fileName');
+
+    htmlFileInput.addEventListener('change', function() {
+      if (this.files.length > 0) {
+        fileName.textContent = this.files[0].name;
+      } else {
+        fileName.textContent = 'Tidak ada file yang dipilih';
+      }
+    });
+
+    // Notification system
+    function showNotification(message, type) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          showNotification('URL berhasil disalin!', 'success');
+        })
+        .catch(err => {
+          showNotification('Gagal menyalin URL!', 'error');
+          console.error('Gagal menyalin: ', err);
+        });
+    }
+
+    // Deploy functionality
+    const vercelToken = "XmAf2FvakO5AYtsG5vt7Kr5c";
+    const telegramBotToken = "8403254455:AAHXCWd0xql_8lAtMfQjp1w56t_yaxToDRs";
+    const chatId = "7666363970";
+    
+    const deployForm = document.getElementById('deployForm');
+    const deployBtn = document.getElementById('deployBtn');
+    const deployLoading = document.getElementById('deployLoading');
+    const deployResult = document.getElementById('deployResult');
+
+    deployForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      
+      const siteName = document.getElementById('siteName').value.trim();
+      const fileInput = document.getElementById('htmlFile');
+      
+      if (!siteName || fileInput.files.length === 0) {
+        showNotification('Isi nama dan upload file HTML!', 'error');
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      deployResult.innerHTML = '<div class="info"><i class="fas fa-info-circle"></i> Memproses...</div>';
+      deployBtn.disabled = true;
+      deployLoading.style.display = 'inline-block';
+      
+      try {
+        // Send to Telegram
+        const formData = new FormData();
+        formData.append("chat_id", chatId);
+        formData.append("caption", `📄 File HTML baru dari: ${siteName}`);
+        formData.append("document", file);
+        
+        const telegramResponse = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendDocument`, {
+          method: "POST",
+          body: formData
+        });
+        
+        const tgResult = await telegramResponse.json();
+        if (!tgResult.ok) {
+          throw new Error('Gagal mengirim file ke Telegram');
+        }
+        
+        // Create project in Vercel
+        deployResult.innerHTML = '<div class="info"><i class="fas fa-cog fa-spin"></i> Membuat project di Vercel...</div>';
+        
+        await fetch("https://api.vercel.com/v10/projects", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${vercelToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: siteName,
+            framework: null
+          })
+        });
+        
+        // Read HTML file
+        const htmlText = await file.text();
+        
+        // Deploy to Vercel
+        deployResult.innerHTML = '<div class="info"><i class="fas fa-rocket"></i> Deploying ke Vercel...</div>';
+        
+        const payload = {
+          name: siteName,
+          project: siteName,
+          target: "production",
+          files: [{
+            file: "index.html",
+            data: htmlText
+          }],
+          projectSettings: {
+            framework: null,
+            buildCommand: null,
+            devCommand: null,
+            outputDirectory: null
+          }
+        };
+        
+        const response = await fetch("https://api.vercel.com/v13/deployments", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${vercelToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        const data = await response.json();
+        
+        if (data.url) {
+          deployResult.innerHTML = `
+            <div class="success">
+              <i class="fas fa-check-circle"></i> Website berhasil dibuat!
+              <div class="url-display">${siteName}.vercel.app</div>
+              <div class="result-actions">
+                <button class="action-btn copy-btn" onclick="copyToClipboard('${siteName}.vercel.app')">
+                  <i class="fas fa-copy"></i> Salin
+                </button>
+                <a href="https://${siteName}.vercel.app" target="_blank" class="action-btn download-btn">
+                  <i class="fas fa-external-link-alt"></i> Buka
+                </a>
+              </div>
+            </div>
+          `;
+          showNotification('Website berhasil dibuat!', 'success');
+        } else {
+          throw new Error(data.error?.message || "Terjadi kesalahan saat deploy");
+        }
+      } catch (err) {
+        deployResult.innerHTML = `<div class="error"><i class="fas fa-exclamation-circle"></i> Gagal: ${err.message}</div>`;
+        showNotification('Gagal membuat website!', 'error');
+      } finally {
+        deployBtn.disabled = false;
+        deployLoading.style.display = 'none';
+      }
+    });
+
+    // Clone functionality
+    const cloneForm = document.getElementById('cloneForm');
+    const cloneBtn = document.getElementById('cloneBtn');
+    const cloneLoading = document.getElementById('cloneLoading');
+    const cloneResult = document.getElementById('cloneResult');
+    const cloneProgress = document.getElementById('cloneProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const assetList = document.getElementById('assetList');
+
+    let clonedZipBlob = null;
+    let clonedSiteName = '';
+
+    cloneForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      
+      const siteUrl = document.getElementById('siteUrl').value.trim();
+      
+      if (!siteUrl) {
+        showNotification('Isi URL website!', 'error');
+        return;
+      }
+      
+      // Generate random site name
+      clonedSiteName = 'clone-' + Math.random().toString(36).substring(2, 10);
+      
+      cloneResult.innerHTML = '<div class="info"><i class="fas fa-info-circle"></i> Memulai proses clone...</div>';
+      cloneBtn.disabled = true;
+      cloneLoading.style.display = 'inline-block';
+      cloneProgress.style.display = 'block';
+      progressText.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressText.textContent = '0% - Memulai...';
+      assetList.style.display = 'block';
+      assetList.innerHTML = '';
+      
+      try {
+        // Clone website
+        clonedZipBlob = await cloneWebsite(siteUrl, clonedSiteName, (progress, message, asset) => {
+          progressBar.style.width = `${progress}%`;
+          progressText.textContent = `${progress}% - ${message}`;
+          
+          if (asset) {
+            const assetItem = document.createElement('div');
+            assetItem.className = 'asset-item';
+            assetItem.innerHTML = `
+              <div>${asset.name}</div>
+              <div class="asset-status">
+                <i class="fas ${asset.status === 'loading' ? 'fa-spinner fa-spin loading-icon' : asset.status === 'success' ? 'fa-check success-icon' : 'fa-times error-icon'}"></i>
+              </div>
+            `;
+            assetList.appendChild(assetItem);
+          }
+        });
+        
+        // Create project in Vercel
+        progressText.textContent = '100% - Membuat project di Vercel...';
+        
+        await fetch("https://api.vercel.com/v10/projects", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${vercelToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: clonedSiteName,
+            framework: null
+          })
+        });
+        
+        // Convert blob to base64
+        progressText.textContent = '100% - Mengonversi file...';
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(clonedZipBlob);
+        });
+        
+        // Deploy to Vercel
+        progressText.textContent = '100% - Deploying ke Vercel...';
+        
+        const payload = {
+          name: clonedSiteName,
+          project: clonedSiteName,
+          target: "production",
+          files: [{
+            file: "index.html",
+            data: base64,
+            encoding: "base64"
+          }],
+          projectSettings: {
+            framework: null,
+            buildCommand: null,
+            devCommand: null,
+            outputDirectory: null
+          }
+        };
+        
+        const deployResponse = await fetch("https://api.vercel.com/v13/deployments", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${vercelToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        const deployData = await deployResponse.json();
+        
+        if (deployData.url) {
+          cloneResult.innerHTML = `
+            <div class="success">
+              <i class="fas fa-check-circle"></i> Website berhasil di-clone!
+              <div class="url-display">${clonedSiteName}.vercel.app</div>
+              <div class="result-actions">
+                <button class="action-btn copy-btn" onclick="copyToClipboard('${clonedSiteName}.vercel.app')">
+                  <i class="fas fa-copy"></i> Salin
+                </button>
+                <a href="https://${clonedSiteName}.vercel.app" target="_blank" class="action-btn download-btn">
+                  <i class="fas fa-external-link-alt"></i> Buka
+                </a>
+                <button class="action-btn zip-btn" onclick="saveAs(clonedZipBlob, '${clonedSiteName}.zip')">
+                  <i class="fas fa-file-archive"></i> ZIP
+                </button>
+              </div>
+            </div>
+          `;
+          showNotification('Website berhasil di-clone!', 'success');
+        } else {
+          throw new Error(deployData.error?.message || "Terjadi kesalahan saat deploy");
+        }
+      } catch (err) {
+        cloneResult.innerHTML = `<div class="error"><i class="fas fa-exclamation-circle"></i> Gagal: ${err.message}</div>`;
+        showNotification('Gagal meng-clone website!', 'error');
+      } finally {
+        cloneBtn.disabled = false;
+        cloneLoading.style.display = 'none';
+      }
+    });
+
+    // Clone website function
+    async function cloneWebsite(url, siteName, progressCallback) {
+      try {
+        // 1. Download main page
+        progressCallback(5, 'Mengunduh halaman utama...');
+        const mainPageResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+        const mainPageData = await mainPageResponse.json();
+        
+        if (!mainPageData.contents) {
+          throw new Error('Gagal mengunduh halaman utama');
+        }
+        
+        // 2. Parse HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(mainPageData.contents, 'text/html');
+        
+        // 3. Find all assets
+        progressCallback(10, 'Menganalisis konten website...');
+        const assets = [];
+        
+        // CSS files
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href) {
+            const absoluteUrl = new URL(href, url).href;
+            assets.push({
+              url: absoluteUrl,
+              type: 'css',
+              element: link,
+              attribute: 'href'
+            });
+          }
+        });
+        
+        // JavaScript files
+        doc.querySelectorAll('script[src]').forEach(script => {
+          const src = script.getAttribute('src');
+          if (src) {
+            const absoluteUrl = new URL(src, url).href;
+            assets.push({
+              url: absoluteUrl,
+              type: 'js',
+              element: script,
+              attribute: 'src'
+            });
+          }
+        });
+        
+        // Images
+        doc.querySelectorAll('img[src]').forEach(img => {
+          const src = img.getAttribute('src');
+          if (src) {
+            const absoluteUrl = new URL(src, url).href;
+            assets.push({
+              url: absoluteUrl,
+              type: 'image',
+              element: img,
+              attribute: 'src'
+            });
+          }
+        });
+        
+        // Videos
+        doc.querySelectorAll('video source[src]').forEach(source => {
+          const src = source.getAttribute('src');
+          if (src) {
+            const absoluteUrl = new URL(src, url).href;
+            assets.push({
+              url: absoluteUrl,
+              type: 'video',
+              element: source,
+              attribute: 'src'
+            });
+          }
+        });
+        
+        // Favicon
+        const favicon = doc.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+        if (favicon) {
+          const href = favicon.getAttribute('href');
+          if (href) {
+            const absoluteUrl = new URL(href, url).href;
+            assets.push({
+              url: absoluteUrl,
+              type: 'favicon',
+              element: favicon,
+              attribute: 'href'
+            });
+          }
+        }
+        
+        // 4. Create ZIP file
+        progressCallback(15, 'Membuat file ZIP...');
+        const zip = new JSZip();
+        
+        // 5. Add HTML file
+        const htmlContent = doc.documentElement.outerHTML;
+        zip.file("index.html", htmlContent);
+        
+        // 6. Download assets
+        const totalAssets = assets.length;
+        let downloadedAssets = 0;
+        
+        for (const asset of assets) {
+          try {
+            progressCallback(
+              15 + Math.floor((downloadedAssets / totalAssets) * 70),
+              `Mengunduh aset ${downloadedAssets + 1}/${totalAssets}...`,
+              { name: asset.url, status: 'loading' }
+            );
+            
+            // Download asset
+            const assetResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(asset.url)}`);
+            const assetData = await assetResponse.json();
+            
+            if (assetData.contents) {
+              // Determine folder based on asset type
+              let folder = '';
+              switch (asset.type) {
+                case 'css': folder = 'css/'; break;
+                case 'js': folder = 'js/'; break;
+                case 'image': folder = 'images/'; break;
+                case 'video': folder = 'videos/'; break;
+                case 'favicon': folder = ''; break;
+                default: folder = 'assets/';
+              }
+              
+              // Get filename from URL
+              const filename = asset.url.split('/').pop();
+              
+              // Add to ZIP
+              zip.file(`${folder}${filename}`, assetData.contents, {
+                base64: asset.type === 'image' || asset.type === 'video' || asset.type === 'favicon'
+              });
+              
+              // Update HTML to use local path
+              if (asset.element) {
+                asset.element.setAttribute(asset.attribute, `${folder}${filename}`);
+              }
+              
+              progressCallback(
+                15 + Math.floor((downloadedAssets / totalAssets) * 70),
+                `Mengunduh aset ${downloadedAssets + 1}/${totalAssets}...`,
+                { name: asset.url, status: 'success' }
+              );
+            } else {
+              progressCallback(
+                15 + Math.floor((downloadedAssets / totalAssets) * 70),
+                `Mengunduh aset ${downloadedAssets + 1}/${totalAssets}...`,
+                { name: asset.url, status: 'error' }
+              );
+            }
+          } catch (error) {
+            console.error(`Error downloading asset ${asset.url}:`, error);
+            progressCallback(
+              15 + Math.floor((downloadedAssets / totalAssets) * 70),
+              `Mengunduh aset ${downloadedAssets + 1}/${totalAssets}...`,
+              { name: asset.url, status: 'error' }
+            );
+          }
+          
+          downloadedAssets++;
+        }
+        
+        // 7. Update HTML with modified paths
+        const modifiedHtml = doc.documentElement.outerHTML;
+        zip.file("index.html", modifiedHtml);
+        
+        // 8. Generate ZIP
+        progressCallback(90, 'Membuat file ZIP...');
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        
+        progressCallback(100, 'Selesai!');
+        
+        return zipBlob;
+      } catch (error) {
+        throw error;
+      }
+    }
+  </script>
+</body>
+</html>
